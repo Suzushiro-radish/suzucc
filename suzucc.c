@@ -27,6 +27,98 @@ char *user_input;
 // 現在着目しているトークンを持つグローバル変数
 Token *token;
 
+typedef enum
+{
+    ND_ADD,
+    ND_SUB,
+    ND_MUL,
+    ND_DIV,
+    ND_NUM,
+} NodeKind;
+
+typedef struct Node Node;
+
+struct Node
+{
+    NodeKind kind;
+    Node *lhs; // Left-hand side
+    Node *rhs; // Right-hand side
+    int val;
+};
+
+Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = kind;
+    node->lhs = lhs;
+    node->rhs = rhs;
+    return node;
+}
+
+Node *new_node_num(int val)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_NUM;
+    node->val = val;
+    return node;
+}
+
+Node *expr()
+{
+    Node *node = mul();
+
+    while (1)
+    {
+        if (consume('+'))
+        {
+            node = new_node(ND_ADD, node, mul());
+        }
+        else if (consume('-'))
+        {
+            node = new_node(ND_SUB, node, mul());
+        }
+        else
+        {
+            return node;
+        }
+    }
+}
+
+Node *mul()
+{
+    Node *node = primary();
+
+    while (1)
+    {
+        if (consume('*'))
+        {
+            node = new_node(ND_MUL, node, primary());
+        }
+        else if (consume('/'))
+        {
+            node = new_node(ND_DIV, node, primary());
+        }
+        else
+        {
+            return node;
+        }
+    }
+}
+
+Node *primary()
+{
+    if (consume('('))
+    {
+        Node *node = expr();
+        expect(')');
+        return node;
+    }
+    else
+    {
+        return new_node_num(expect_number());
+    }
+}
+
 // エラー報告用の関数
 void error(char *fmt, ...)
 {
@@ -82,12 +174,14 @@ int expect_number()
 }
 
 // 入力の最後
-bool at_eof() {
-  return token->kind == TK_EOF;
+bool at_eof()
+{
+    return token->kind == TK_EOF;
 }
 
 // 新しいトークンを作成して最後のトークンcurに繋げる
-Token *new_token(TokenKind kind, Token *cur, char *str) {
+Token *new_token(TokenKind kind, Token *cur, char *str)
+{
     Token *tok = calloc(1, sizeof(Token));
     tok->kind = kind;
     tok->str = str;
@@ -95,7 +189,8 @@ Token *new_token(TokenKind kind, Token *cur, char *str) {
     return tok;
 }
 
-Token *tokenize(char *p) {
+Token *tokenize(char *p)
+{
     Token head;
     head.next = NULL;
     Token *cur = &head;
@@ -118,7 +213,7 @@ Token *tokenize(char *p) {
         if (isdigit(*p))
         {
             cur = new_token(TK_NUM, cur, p); // ここではpをインクリメントしない
-            cur->val = strtol(p, &p, 10); // increment p here
+            cur->val = strtol(p, &p, 10);    // increment p here
             continue;
         }
 
@@ -146,7 +241,7 @@ int main(int argc, char **argv)
     printf("main:\n");
     printf("    mov rax, %d\n", expect_number());
 
-    while (! at_eof())
+    while (!at_eof())
     {
         if (consume('+'))
         {
