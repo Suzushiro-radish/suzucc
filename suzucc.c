@@ -148,7 +148,7 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (*p == '+' || *p == '-')
+        if (*p == '+' || *p == '-' || *p == '*' || *p == '/')
         {
             cur = new_token(TK_RESERVED, cur, p++);
             continue;
@@ -169,20 +169,21 @@ Token *tokenize(char *p)
 }
 
 Node *expr();
+Node *mul();
 
 Node *expr()
 {
-    Node *node = new_node_num(expect_number());
+    Node *node = mul();
 
     while (1)
     {
         if (consume('+'))
         {
-            node = new_node(ND_ADD, node, new_node_num(expect_number()));
+            node = new_node(ND_ADD, node, mul());
         }
         else if (consume('-'))
         {
-            node = new_node(ND_SUB, node, new_node_num(expect_number()));
+            node = new_node(ND_SUB, node, mul());
         }
         else
         {
@@ -190,6 +191,41 @@ Node *expr()
         }
     }
 }
+
+Node *mul()
+{
+    Node *node = new_node_num(expect_number());
+
+    while (1)
+    {
+        if (consume('*'))
+        {
+            node = new_node(ND_MUL, node, new_node_num(expect_number()));
+        }
+        else if (consume('/'))
+        {
+            node = new_node(ND_DIV, node, new_node_num(expect_number()));
+        }
+        else
+        {
+            return node;
+        }
+    }
+}
+
+// Node *primary()
+// {
+//     if (consume('('))
+//     {
+//         Node *node = expr();
+//         expect(')');
+//         return node;
+//     }
+//     else
+//     {
+//         return new_node_num(expect_number());
+//     }
+// }
 
 void gen(Node *node)
 {
