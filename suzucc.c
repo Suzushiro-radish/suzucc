@@ -63,62 +63,6 @@ Node *new_node_num(int val)
     return node;
 }
 
-Node *expr()
-{
-    Node *node = mul();
-
-    while (1)
-    {
-        if (consume('+'))
-        {
-            node = new_node(ND_ADD, node, mul());
-        }
-        else if (consume('-'))
-        {
-            node = new_node(ND_SUB, node, mul());
-        }
-        else
-        {
-            return node;
-        }
-    }
-}
-
-Node *mul()
-{
-    Node *node = primary();
-
-    while (1)
-    {
-        if (consume('*'))
-        {
-            node = new_node(ND_MUL, node, primary());
-        }
-        else if (consume('/'))
-        {
-            node = new_node(ND_DIV, node, primary());
-        }
-        else
-        {
-            return node;
-        }
-    }
-}
-
-Node *primary()
-{
-    if (consume('('))
-    {
-        Node *node = expr();
-        expect(')');
-        return node;
-    }
-    else
-    {
-        return new_node_num(expect_number());
-    }
-}
-
 // エラー報告用の関数
 void error(char *fmt, ...)
 {
@@ -224,6 +168,29 @@ Token *tokenize(char *p)
     return head.next;
 }
 
+Node *expr();
+
+Node *expr()
+{
+    Node *node = new_node_num(expect_number());
+
+    while (1)
+    {
+        if (consume('+'))
+        {
+            node = new_node(ND_ADD, node, new_node_num(expect_number()));
+        }
+        else if (consume('-'))
+        {
+            node = new_node(ND_SUB, node, new_node_num(expect_number()));
+        }
+        else
+        {
+            return node;
+        }
+    }
+}
+
 void gen(Node *node)
 {
     if (node->kind == ND_NUM)
@@ -241,13 +208,13 @@ void gen(Node *node)
     switch (node->kind)
     {
     case ND_ADD:
-        printf("    add rax rdi\n");
+        printf("    add rax, rdi\n");
         break;
     case ND_SUB:
-        printf("    sub rax rdi\n");
+        printf("    sub rax, rdi\n");
         break;
     case ND_MUL:
-        printf("    imul rax rdi\n");
+        printf("    imul rax, rdi\n");
         break;
     case ND_DIV:
         printf("    cqo\n");
@@ -265,27 +232,19 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    // Tokenizing and parsing
     user_input = argv[1];
+    token = tokenize(user_input);
+    Node *node = expr();
 
-    token = tokenize(argv[1]);
-
+    // Export asm
     printf(".intel_syntax noprefix\n");
     printf(".globl main\n");
     printf("main:\n");
-    printf("    mov rax, %d\n", expect_number());
 
-    while (!at_eof())
-    {
-        if (consume('+'))
-        {
-            printf("    add rax, %d\n", expect_number());
-            continue;
-        }
+    gen(node);
 
-        expect('-');
-        printf("    sub rax, %d\n", expect_number());
-    }
-
+    printf("    pop rax\n");
     printf("    ret\n");
     return 0;
 }
