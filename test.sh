@@ -34,5 +34,7 @@ assert 15 '+3*+5'
 assert 1 "3 == 3"
 assert 0 "1 == 5"
 assert 1 "1+5 == (2*3)" 
+assert 1 "3 != 2"
+assert 0 "12 != 3 * 4"
 
 echo OK
