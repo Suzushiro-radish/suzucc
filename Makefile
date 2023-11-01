@@ -1,6 +1,11 @@
-CFLAGS=-std=c11 -g -static
+CFLAGS=-std=c11 -g -fno-common
+SRCS=$(wildcard *.c)
+OBJS=$(SRCS:.c=.o)
 
-suzucc: suzucc.c
+suzucc: $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+$(OBJS): suzucc.h
 
 test: suzucc
 	./test.sh

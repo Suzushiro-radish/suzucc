@@ -1,0 +1,7 @@
+{
+    "C_Cpp.default.compilerPath": "/usr/bin/cpp",
+    "files.associations": {
+        "suzucc.h": "c",
+        "stdarg.h": "c"
+    }
+}
