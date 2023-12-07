@@ -18,14 +18,9 @@ struct Token
     TokenKind kind; // トークンの種類
     Token *next;    // 次のトークンのポインタ
     int val;        // kindがTK_NUMの時の数値
-    char *str;      // トークンの文字列
+    char *loc;      // トークンの場所
     int len;        // トークンの文字数
 };
-
-extern char *user_input;
-
-// 現在着目しているトークンを持つグローバル変数
-extern Token *token;
 
 typedef enum
 {
@@ -52,7 +47,8 @@ struct Node
 
 void error(char *fmt, ...);
 void error_at(char *loc, char *fmt, ...);
+void error_tok(Token *tok, char *fmt, ...);
 
 Token *tokenize(char *p);
 void gen(Node *node);
-Node *expr();
+Node *parse(Token *tok);

@@ -1,8 +1,5 @@
 #include "suzucc.h"
 
-char *user_input;
-Token *token;
-
 int main(int argc, char **argv)
 {
     if (argc != 2)
@@ -12,9 +9,8 @@ int main(int argc, char **argv)
     }
 
     // Tokenizing and parsing
-    user_input = argv[1];
-    token = tokenize(user_input);
-    Node *node = expr();
+    Token *token = tokenize(argv[1]);
+    Node *node = parse(token);
 
     // Export asm
     printf(".intel_syntax noprefix\n");
