@@ -70,15 +70,15 @@ Token *tokenize(char *p)
 
         if (startswith(p, "==") || startswith(p, "!=") || startswith(p, "<=") || startswith(p, ">="))
         {
-            cur = new_token(TK_RESERVED, p, p + 2);
+            cur = cur->next = new_token(TK_RESERVED, p, p + 2);
             p += 2;
             continue;
         }
 
         if (strchr("+-*/()<>", *p))
         {
-
-            cur = new_token(TK_RESERVED, p, p + 1);
+            cur = cur->next = new_token(TK_RESERVED, p, p + 1);
+            p += 1;
             continue;
         }
 
@@ -87,6 +87,7 @@ Token *tokenize(char *p)
             cur = cur->next = new_token(TK_NUM, p, p); // ここではpをインクリメントしない
             char *q = p;
             cur->val = strtol(p, &p, 10);       // increment p here
+            cur->len = p - q;
             continue;
         }
 

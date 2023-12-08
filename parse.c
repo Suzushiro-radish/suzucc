@@ -104,11 +104,11 @@ Node *add(Token **rest, Token *tok)
     {
         if (equal(tok, "+"))
         {
-            node = new_node(ND_ADD, node, mul(rest, tok));
+            node = new_node(ND_ADD, node, mul(&tok, tok->next));
         }
         else if (equal(tok, "-"))
         {
-            node = new_node(ND_SUB, node, mul(rest, tok));
+            node = new_node(ND_SUB, node, mul(&tok, tok->next));
         }
         else
         {
@@ -126,11 +126,11 @@ Node *mul(Token **rest, Token *tok)
     {
         if (equal(tok, "*"))
         {
-            node = new_node(ND_MUL, node, unary(rest, tok));
+            node = new_node(ND_MUL, node, unary(&tok, tok->next));
         }
         else if (equal(tok, "/"))
         {
-            node = new_node(ND_DIV, node, unary(rest, tok));
+            node = new_node(ND_DIV, node, unary(&tok, tok->next));
         }
         else
         {
