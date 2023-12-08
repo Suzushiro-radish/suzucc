@@ -153,7 +153,8 @@ Node *primary(Token **rest, Token *tok)
 {
     if (equal(tok, "("))
     {
-        Node *node = expr(rest, tok);
+        
+        Node *node = expr(&tok, tok->next);
         *rest = skip(tok, ")");
         return node;
     }
