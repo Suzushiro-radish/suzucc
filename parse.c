@@ -31,6 +31,7 @@ Token *skip(Token *tok, char *op)
     return tok->next;
 }
 
+Node *stmt();
 Node *expr();
 Node *equality();
 Node *relational();
@@ -38,6 +39,13 @@ Node *add();
 Node *mul();
 Node *primary();
 Node *unary();
+
+Node *stmt(Token **rest, Token *tok)
+{
+    Node *node = expr(rest, tok);
+    *rest = skip(*rest, ";");
+    return node;
+}
 
 Node *expr(Token **rest, Token *tok)
 {
@@ -153,23 +161,28 @@ Node *primary(Token **rest, Token *tok)
 {
     if (equal(tok, "("))
     {
-        
         Node *node = expr(&tok, tok->next);
         *rest = skip(tok, ")");
         return node;
     }
-    else
-    {
+
+    if (tok->kind == TK_NUM) {
         Node *node = new_node_num(tok->val);
         *rest = tok->next;
         return node;
     }
+
+    error_tok(tok, "Expression expected.");
 }
 
 Node *parse(Token *tok)
 {
-    Node *node = expr(&tok, tok);
-    if (tok->kind != TK_EOF)
-        error_tok(tok, "extra token");
-    return node;
+    Node head = {};
+    Node *cur = &head;
+    while (tok->kind != TK_EOF)
+    {
+        cur = cur->next = stmt(&tok, tok);
+    }
+
+    return head.next;
 }
