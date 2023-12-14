@@ -55,6 +55,7 @@ Token *new_token(TokenKind kind, char *start, char *end)
 
 Token *tokenize(char *p)
 {
+    current_input = p;
     Token head;
     head.next = NULL;
     Token *cur = &head;
