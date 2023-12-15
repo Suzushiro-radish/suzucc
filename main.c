@@ -17,9 +17,12 @@ int main(int argc, char **argv)
     printf(".globl main\n");
     printf("main:\n");
 
-    gen(node);
+    for (Node *n = node; n; n = n->next)
+    {
+        gen(n);
+        printf("  pop rax\n");
+    }
 
-    printf("    pop rax\n");
-    printf("    ret\n");
+    printf("  ret\n");
     return 0;
 }

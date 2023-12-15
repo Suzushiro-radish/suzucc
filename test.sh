@@ -18,6 +18,7 @@ assert() {
 
 assert 0 "0;"
 assert 42 "42;"
+assert 22 "14+8;"
 assert 21 "5+20-4;"
 assert 41 " 12 + 34 - 5;"
 assert 6 "2 * 3;"
@@ -42,5 +43,6 @@ assert 0 "0 > 0;"
 assert 1 "2 >= 2;"
 assert 0 "-2 >= 34;"
 assert 1 "-10 <= 34;"
+assert 4 "2; 3; 4;"
 
 echo OK
