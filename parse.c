@@ -1,5 +1,15 @@
 #include "suzucc.h"
 
+Node *stmt();
+Node *expr();
+Node *assign();
+Node *equality();
+Node *relational();
+Node *add();
+Node *mul();
+Node *primary();
+Node *unary();
+
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
     Node *node = calloc(1, sizeof(Node));
@@ -17,6 +27,14 @@ Node *new_node_num(int val)
     return node;
 }
 
+Node *new_node_var(char name)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_LVAR;
+    node->name = name;
+    return node;
+}
+
 // Consume the current token if it matches "op".
 bool equal(Token *token, char *op)
 {
@@ -31,14 +49,7 @@ Token *skip(Token *tok, char *op)
     return tok->next;
 }
 
-Node *stmt();
-Node *expr();
-Node *equality();
-Node *relational();
-Node *add();
-Node *mul();
-Node *primary();
-Node *unary();
+
 
 Node *stmt(Token **rest, Token *tok)
 {
@@ -50,6 +61,16 @@ Node *stmt(Token **rest, Token *tok)
 Node *expr(Token **rest, Token *tok)
 {
     Node *node = equality(rest, tok);
+    return node;
+}
+
+Node *assign(Token **rest, Token *tok)
+{
+    Node *node = equality(&tok, tok);
+    if (equal(tok, "=")) {
+        node = new_node(ND_ASSIGN, node, assign(&tok, tok->next));
+    }
+    *rest = tok;
     return node;
 }
 
@@ -170,6 +191,13 @@ Node *primary(Token **rest, Token *tok)
         Node *node = new_node_num(tok->val);
         *rest = tok->next;
         return node;
+    }
+
+    if (tok->kind == TK_IDENT)
+    {
+        Node *node = new_node_var(*tok->loc);
+        *rest = tok->next;
+        return node; 
     }
 
     error_tok(tok, "Expression expected.");

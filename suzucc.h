@@ -8,6 +8,7 @@
 typedef enum
 {
     TK_RESERVED,
+    TK_IDENT, // 識別子
     TK_NUM,
     TK_EOF,
 } TokenKind;
@@ -33,6 +34,8 @@ typedef enum
     ND_NE,
     ND_LT, // <
     ND_LE, // <=
+    ND_LVAR, // Local variables
+    ND_ASSIGN, // =
 } NodeKind;
 
 typedef struct Node Node;
@@ -44,6 +47,7 @@ struct Node
     Node *lhs; // Left-hand side
     Node *rhs; // Right-hand side
     int val;
+    char name; // 変数名
 };
 
 void error(char *fmt, ...);
