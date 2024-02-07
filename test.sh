@@ -43,6 +43,9 @@ assert 0 "0 > 0;"
 assert 1 "2 >= 2;"
 assert 0 "-2 >= 34;"
 assert 1 "-10 <= 34;"
+assert 2 "1; 2;"
 assert 4 "2; 3; 4;"
+
+assert 3 "a=3; a;"
 
 echo OK

@@ -36,6 +36,7 @@ typedef enum
     ND_LE, // <=
     ND_LVAR, // Local variables
     ND_ASSIGN, // =
+    ND_STMT,
 } NodeKind;
 
 typedef struct Node Node;
@@ -55,5 +56,5 @@ void error_at(char *loc, char *fmt, ...);
 void error_tok(Token *tok, char *fmt, ...);
 
 Token *tokenize(char *p);
-void gen(Node *node);
+void codegen(Node *node);
 Node *parse(Token *tok);

@@ -13,4 +13,7 @@ test: suzucc
 clean:
 	rm -f suzucc *.o *~ tmp*
 
+debug: suzucc
+	gdb ./suzucc
+
 .PHONY: test clean
