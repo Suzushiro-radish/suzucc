@@ -26,9 +26,9 @@ void gen_lval(Node *node)
         error("代入の左辺値が変数ではありません");
     }
 
-    printf("  mov rax, rbp\n");
-    printf("  sub rax, %d\n", ('z' - node->name + 1) * 8);
-    push();
+    int offset = (node->name - 'a' + 1) * 8;
+    printf("  lea rax, [rbp-%d]\n", offset);
+    return;
 }
 
 void gen(Node *node)
@@ -36,68 +36,64 @@ void gen(Node *node)
     switch (node->kind)
     {
     case ND_NUM:
-        printf("  push %d\n", node->val);
+        printf("  mov rax, %d\n", node->val);
         return;
     case ND_LVAR:
         gen_lval(node);
-        pop("rax");
         printf("  mov rax, [rax]\n");
-        push();
         return;
     case ND_ASSIGN:
         gen_lval(node->lhs);
+        push();
         gen(node->rhs);
         pop("rdi");
-        pop("rax");
-        printf("  mov [rax], rdi\n");
-        push();
+        printf("  mov [rdi], rax\n");
         return;
-    default:
-        break;
     }
 
-    gen(node->lhs);
     gen(node->rhs);
+    push();
+    gen(node->lhs);
     pop("rdi"); // rhsをrdiにpop
-    pop("rax"); // lhsをraxにpop
 
     switch (node->kind)
     {
     case ND_ADD:
         printf("  add rax, rdi\n");
-        break;
+        return;
     case ND_SUB:
         printf("  sub rax, rdi\n");
-        break;
+        return;
     case ND_MUL:
         printf("  imul rax, rdi\n");
-        break;
+        return;
     case ND_DIV:
         printf("  cqo\n");
         printf("  idiv rdi\n");
-        break;
+        return;
     case ND_EQ:
         printf("  cmp rax, rdi\n");
         printf("  sete al\n");
         printf("  movzb rax, al\n");
-        break;
+        return;
     case ND_NE:
         printf("  cmp rax, rdi\n");
         printf("  setne al\n");
         printf("  movzb rax, al\n");
-        break;
+        return;
     case ND_LT:
         printf("  cmp rax, rdi\n");
         printf("  setl al\n");
         printf("  movzb rax, al\n");
-        break;
+        return;
     case ND_LE:
         printf("  cmp rax, rdi\n");
         printf("  setle al\n");
         printf("  movzb rax, al\n");
+        return;
     }
 
-    printf("  push rax\n");
+    error("invalid expression");
 }
 
 void gen_stmt(Node *node)
@@ -105,7 +101,7 @@ void gen_stmt(Node *node)
     if (node->kind == ND_STMT)
     {
         gen(node->lhs);
-        printf("  pop rax\n");
+        return;
     }
     else
     {
@@ -119,10 +115,19 @@ void codegen(Node *node)
     printf(".global main\n");
     printf("main:\n");
 
+    // プロローグ
+    // 変数26個分の領域を確保する
+    printf("  push rbp\n");
+    printf("  mov rbp, rsp\n");
+    printf("  sub rsp, %d\n", 26 * 8);
+
     for (Node *n = node; n; n = n->next)
     {
         gen_stmt(n);
     }
 
+    // エピローグ
+    printf("  mov rsp, rbp\n");
+    printf("  pop rbp\n");
     printf("  ret\n");
 }

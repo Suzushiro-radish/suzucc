@@ -73,12 +73,14 @@ Node *stmt(Token **rest, Token *tok)
     return node;
 }
 
+// expr = assign
 Node *expr(Token **rest, Token *tok)
 {
-    Node *node = equality(rest, tok);
+    Node *node = assign(rest, tok);
     return node;
 }
 
+// assign = equality ("=" assign)?
 Node *assign(Token **rest, Token *tok)
 {
     Node *node = equality(&tok, tok);

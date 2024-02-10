@@ -47,5 +47,7 @@ assert 2 "1; 2;"
 assert 4 "2; 3; 4;"
 
 assert 3 "a=3; a;"
+assert 5 "a=2; z=3; a+z;"
+assert 6 'a=b=3;a+b;'
 
 echo OK
